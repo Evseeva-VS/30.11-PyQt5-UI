@@ -8,12 +8,14 @@ from main_form import Ui_MainWindow
 class MyWidget(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
+        self.conn = None
         self.setupUi(self)
         self.rbMale.setChecked(True)
         self.pbOpen.clicked.connect(self.open_file)
         self.pbInsert.clicked.connect(self.insert_student)
         self.pbDelete.clicked.connect(self.delete_student)
         self.pbFind.clicked.connect(self.find_for_val)
+
 
     def open_file(self):
         try:
@@ -81,6 +83,11 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         val = self.leFind.text()
         col = self.cbColNames.itemText(self.cbColNames.currentIndex())
         self.update_twStudents(f"select * from students where `{col}` like '{val}%'")
+
+    def closeEvent(self, event):
+        if self.conn is not None:
+            self.conn.close()
+        event.accept()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
