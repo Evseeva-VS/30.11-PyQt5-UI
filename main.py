@@ -13,6 +13,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.pbOpen.clicked.connect(self.open_file)
         self.pbInsert.clicked.connect(self.insert_student)
         self.pbDelete.clicked.connect(self.delete_student)
+        self.pbFind.clicked.connect(self.find_for_val)
 
     def open_file(self):
         try:
@@ -75,6 +76,11 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             print(f"Исключение: {e}")
             return e
         self.update_twStudents()
+
+    def find_for_val(self):
+        val = self.leFind.text()
+        col = self.cbColNames.itemText(self.cbColNames.currentIndex())
+        self.update_twStudents(f"select * from students where `{col}` like '{val}%'")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
