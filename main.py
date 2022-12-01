@@ -15,7 +15,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.pbInsert.clicked.connect(self.insert_student)
         self.pbDelete.clicked.connect(self.delete_student)
         self.pbFind.clicked.connect(self.find_for_val)
-
+        self.pbAdults.clicked.connect(self.show_adult)
 
     def open_file(self):
         try:
@@ -83,6 +83,9 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         val = self.leFind.text()
         col = self.cbColNames.itemText(self.cbColNames.currentIndex())
         self.update_twStudents(f"select * from students where `{col}` like '{val}%'")
+
+    def show_adult(self):
+        self.update_twStudents('select * from students where age>17')
 
     def closeEvent(self, event):
         if self.conn is not None:
