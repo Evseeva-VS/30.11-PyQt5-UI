@@ -12,7 +12,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.rbMale.setChecked(True)
         self.pbOpen.clicked.connect(self.open_file)
         self.pbInsert.clicked.connect(self.insert_student)
-
+        self.pbDelete.clicked.connect(self.delete_student)
 
     def open_file(self):
         try:
@@ -56,6 +56,19 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             cur = self.conn.cursor()
             cur.execute(f"""insert into students(fio, sex, age, phone, email, `group`, curs)
             values('{row[0]}', '{row[1]}', {row[2]}, '{row[3]}', '{row[4]}', '{row[5]}', {row[6]})""")
+            self.conn.commit()
+            cur.close()
+        except Exception as e:
+            print(f"Исключение: {e}")
+            return e
+        self.update_twStudents()
+
+    def delete_student(self):
+        row = self.twStudents.currentRow()
+        num = self.twStudents.item(row, 0).text()
+        try:
+            cur = self.conn.cursor()
+            cur.execute(f"delete from students where num = {num}")
             self.conn.commit()
             cur.close()
         except Exception as e:
