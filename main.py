@@ -11,6 +11,8 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.rbMale.setChecked(True)
         self.pbOpen.clicked.connect(self.open_file)
+        self.pbInsert.clicked.connect(self.insert_student)
+
 
     def open_file(self):
         try:
@@ -31,6 +33,35 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             for j, elem in enumerate(row):
                 self.twStudents.setItem(i, j, QTableWidgetItem(str(elem)))
         self.twStudents.resizeColumnsToContents()
+
+     def update_twStudents(self, query="select * from students"):
+        try:
+            cur = self.conn.cursor()
+            data = cur.execute(query).fetchall()
+        except Exception as e:
+            print(f"Проблемы с подключением к БД. {e}")
+            return e
+        self.twStudents.setRowCount(0)
+        for i, row in enumerate(data):
+            self.twStudents.setRowCount(self.twStudents.rowCount() + 1)
+            for j, elem in enumerate(row):
+                self.twStudents.setItem(i, j, QTableWidgetItem(str(elem)))
+        self.twStudents.resizeColumnsToContents()
+
+    def insert_student(self):
+        row = [self.leFio.text(), 'муж' if self.rbMale.isChecked() else 'жен', self.sbAge.text(),
+               self.lePhone.text(), self.leEmail.text(), self.leGroup.text(),
+               self.sbCurs.text()]
+        try:
+            cur = self.conn.cursor()
+            cur.execute(f"""insert into students(fio, sex, age, phone, email, `group`, curs)
+            values('{row[0]}', '{row[1]}', {row[2]}, '{row[3]}', '{row[4]}', '{row[5]}', {row[6]})""")
+            self.conn.commit()
+            cur.close()
+        except Exception as e:
+            print(f"Исключение: {e}")
+            return e
+        self.update_twStudents()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
