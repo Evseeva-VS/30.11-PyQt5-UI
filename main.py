@@ -16,6 +16,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.pbDelete.clicked.connect(self.delete_student)
         self.pbFind.clicked.connect(self.find_for_val)
         self.pbAdults.clicked.connect(self.show_adult)
+        self.pbNext.clicked.connect(self.go_to_next_curs)
 
     def open_file(self):
         try:
@@ -86,6 +87,24 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
     def show_adult(self):
         self.update_twStudents('select * from students where age>17')
+
+    def go_to_next_curs(self):
+        try:
+            cur = self.conn.cursor()
+            cur.execute(f"update students set curs=curs+1 where curs<5")
+            self.conn.commit()
+            data = cur.execute(f'select * from students where curs = 5').fetchall()
+            for student in data:
+                cur.execute(f"delete from students where num = {student[0]}")
+                self.conn.commit()
+                cur.execute(f"""insert into expelled_students(fio, sex, age, phone, email, `group`, curs)
+            values('{student[0]}', '{student[1]}', '{student[2]}', '{student[3]}', '{student[4]}', '{student[5]}', {student[6]})""")
+                self.conn.commit()
+            cur.close()
+        except Exception as e:
+            print(f"Исключение: {e}")
+            return e
+        self.update_twStudents()
 
     def closeEvent(self, event):
         if self.conn is not None:
